@@ -76,6 +76,34 @@ class MyAppState extends ChangeNotifier {
     notifyListeners(); // Notifies all widgets that are listening to this state (a method of ChangeNotifier)
     // ensures that anyone watching MyAppState is notified.
   }
+  /* Added a new property to MyAppState called favorites.
+  This property is initialized with an empty set: {}.
+
+  also specified that the set can only ever contain
+  word pairs: <WordPair>{}, using generics. 
+  This helps make your app more robust,
+  Dart refuses to run your app if you try
+  to add anything other than WordPair to it.
+  
+  In turn, you can use the favorites set
+  knowing that there can never be any unwanted
+  objects (like null) hiding in there.*/
+  var favorites = <WordPair>{}; // A set to store favorite word pairs
+
+  /* The toggleFavorite method adds the current word pair to the favorites set
+  
+  either removes the current word pair from the set
+  of favorites (if it's already there), or adds it
+  (if it isn't there yet). In either case, the code
+  calls notifyListeners(); afterwards. */
+  void toggleFavorite() {
+    if (favorites.contains(current)) {
+      favorites.remove(current);
+    } else {
+      favorites.add(current);
+    }
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatelessWidget {
@@ -89,6 +117,10 @@ class MyHomePage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
     var currentPair = appState.current;
 
+    IconData favoriteIcon = appState.favorites.contains(currentPair)
+        ? Icons.favorite
+        : Icons.favorite_border;
+
     /* Every build method must return a widget
     or (more typically) a nested tree of widgets.
     In this case, the top-level widget is Scaffold.
@@ -101,20 +133,35 @@ class MyHomePage extends StatelessWidget {
       You'll soon change this so that the column is centered.*/
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment
-              .center, // Centers the column's children vertically
+          // Centers the column's children vertically
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             PairDisplayCard(
               displayedPair: currentPair,
             ), // The Text widget no longer refers to the whole appState.
             SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                // print("button pressed"); // This prints to the console
-                appState
-                    .getNext(); // Calls the getNext method in MyAppState to get a new word pair
-              },
-              child: Text("next"),
+            Row(
+              // mainAxisSize.min is used so the row only takes up as much horizontal space as its children need.
+              mainAxisSize: MainAxisSize.min, // Takes up space only as needed
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // Calls the toggleFavorite method in MyAppState
+                    appState.toggleFavorite();
+                  },
+                  icon: Icon(favoriteIcon),
+                  label: Text("Favorite"),
+                ),
+                SizedBox(width: 10), // Adds space between the buttons
+                ElevatedButton(
+                  onPressed: () {
+                    // print("button pressed"); // This prints to the console
+                    // Calls the getNext method in MyAppState to get a new word pair
+                    appState.getNext();
+                  },
+                  child: Text("next"),
+                ),
+              ],
             ),
           ],
         ),
