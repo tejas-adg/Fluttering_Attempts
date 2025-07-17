@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Fluttering Attempts',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         ),
         home: MyHomePage(),
       ),
@@ -87,6 +87,7 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     /* MyHomePage tracks changes to the app's current state using the watch method.*/
     var appState = context.watch<MyAppState>();
+    var currentPair = appState.current;
 
     /* Every build method must return a widget
     or (more typically) a nested tree of widgets.
@@ -98,20 +99,51 @@ class MyHomePage extends StatelessWidget {
       It takes any number of children and puts them in a column from top to bottom.
       By default, the column visually places its children at the top.
       You'll soon change this so that the column is centered.*/
-      body: Column(
-        children: [
-          Text('A random AWESOME idea:'),
-          Text(appState.current.asLowerCase),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment
+              .center, // Centers the column's children vertically
+          children: [
+            PairDisplayCard(
+              displayedPair: currentPair,
+            ), // The Text widget no longer refers to the whole appState.
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                // print("button pressed"); // This prints to the console
+                appState
+                    .getNext(); // Calls the getNext method in MyAppState to get a new word pair
+              },
+              child: Text("next"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-          ElevatedButton(
-            onPressed: () {
-              // print("button pressed"); // This prints to the console
-              appState
-                  .getNext(); // Calls the getNext method in MyAppState to get a new word pair
-            },
-            child: Text("next"),
+class PairDisplayCard extends StatelessWidget {
+  const PairDisplayCard({super.key, required this.displayedPair});
+
+  final WordPair displayedPair;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      color: theme.colorScheme.primaryFixed,
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Text(
+          displayedPair.asLowerCase,
+          style: theme.textTheme.displayMedium!.copyWith(
+            color: theme.colorScheme.onPrimaryFixed,
           ),
-        ],
+          semanticsLabel: "${displayedPair.first} ${displayedPair.second}",
+        ),
       ),
     );
   }
