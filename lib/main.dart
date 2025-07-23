@@ -133,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = GeneratorPage();
         break;
       case 1:
-        page = Placeholder();
+        page = FavoritesPage();
         break;
       default:
         throw UnimplementedError('no widget for $currentIndex');
@@ -289,3 +289,42 @@ class PairDisplayCard extends StatelessWidget {
     );
   }
 }
+
+// ...
+/*
+Here's what the widget does: 
+    - It gets the current state of the app.
+    - If the list of favorites is empty, it shows a centered message: No favorites yet.
+    - Otherwise, it shows a (scrollable) list.
+    - The list starts with a summary (for example, You have 5 favorites.).
+    - The code then iterates through all the favorites, and constructs a ListTile widget for each one.
+*/
+class FavoritesPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
+    if (appState.favorites.isEmpty) {
+      return Center(child: Text('No favorites yet.'));
+    }
+
+    return ListView(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text(
+            'You have '
+            '${appState.favorites.length} favorites:',
+          ),
+        ),
+        for (var pair in appState.favorites)
+          ListTile(
+            leading: Icon(Icons.favorite),
+            title: Text(pair.asLowerCase),
+          ),
+      ],
+    );
+  }
+}
+
+// ...
